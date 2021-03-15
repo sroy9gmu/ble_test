@@ -3,8 +3,10 @@
 
 BLEService heartRateService("180D"); // BLE Heart Rate Service
 // BLE Heart Rate Measurement Characteristic
-BLEFloatCharacteristic heartRateChar("2A37",  // standard 16-bit characteristic UUID
-    BLERead | BLENotify); // remote clients will be able to get notifications if this characteristic changes                      
+BLEIntCharacteristic heartRateChar("2A37",  // standard 16-bit characteristic UUID
+    BLERead | BLENotify);  // remote clients will be able to get notifications if this characteristic changes
+
+int oldHeartRate = 0;  // last heart rate reading from analog input
 
 void setup() {
   Serial.begin(9600);    // initialize serial communication
@@ -26,7 +28,7 @@ void setup() {
   Serial.print("Accelerometer sample rate = ");
   Serial.print(IMU.accelerationSampleRate());
   Serial.println(" Hz");
-  Serial.print("Gyroscopr sample rate = ");
+  Serial.print("Gyroscope sample rate = ");
   Serial.print(IMU.gyroscopeSampleRate());
   Serial.println(" Hz");
   
@@ -62,16 +64,13 @@ void loop() {
     // check the heart rate measurement every 200ms
     // as long as the central is still connected:
     while (central.connected()) {
+        float ax = 0, ay, az;
         Serial.println("Still connected");
-        if (IMU.accelerationAvailable()) {
-          char buff[32]; 
-          float ax, ay, az;     
-          IMU.readAcceleration(ax, ay, az);
-          snprintf (buff, sizeof(buff), "%f %f %f", ax * 1000, ay * 1000, az * 1000);
-          Serial.println(buff);
-          heartRateChar.writeValue(ax);
-        } 
-        updateHeartRate();
+        if (IMU.accelerationAvailable()) {               
+          IMU.readAcceleration(ax, ay, az);          
+        }
+        updateHeartRate(ax * 1000);
+        delay(1000);         
     }
   }
 }
@@ -90,18 +89,17 @@ void blePeripheralDisconnectHandler(BLEDevice central) {
   digitalWrite(LED_BUILTIN, LOW);     // indicate that we no longer have a connection
 }
 
-void updateHeartRate() {
+void updateHeartRate(float axnew) {
   /* Read the current voltage level on the A0 analog input pin.
      This is used here to simulate the heart rate's measurement.
   */
-  /*int heartRateMeasurement = analogRead(A0);
-  int heartRate = map(heartRateMeasurement, 0, 1023, 0, 100);
-  if (heartRate != oldHeartRate) {      // if the heart rate has changed
-    Serial.print("Heart Rate is now: "); // print it
-    Serial.println(heartRate);
-    const unsigned char heartRateCharArray[2] = { 0, (char)heartRate };
-    heartRateChar.setValue(heartRateCharArray, 2);  // and update the heart rate measurement characteristic
+  //int heartRateMeasurement = analogRead(A0);
+  int heartRate = (int)axnew;//map(heartRateMeasurement, 0, 1023, 0, 100);
+  Serial.print("Heart Rate is now: "); // print it
+  Serial.println(heartRate);
+  if (heartRate != oldHeartRate) {      // if the heart rate has changed    
+    heartRateChar.writeValue(heartRate);
     oldHeartRate = heartRate;           // save the level for next comparison
-      }
-    */
+    Serial.println("Heart Rate updated ");
+  }
 }
