@@ -18,8 +18,7 @@ void setup() {
 
     while (1);
   }
-  Serial.println("Ardunio BLE address is [" + BLE.address() + "]");
-  
+    
   if (!IMU.begin()) {
     Serial.println("Failed to initialize IMU!");
     while (1);
@@ -54,18 +53,17 @@ void setup() {
 void loop() {
   // listen for BLE peripherals to connect:
   BLEDevice central = BLE.central();
-
+    
   // if a central is connected to peripheral:
-  if (central) {
-    Serial.print("Connected to central at address: ");
-    // print the central's MAC address:
-    Serial.println(central.address());
-
+  if (central) {   
     // check the heart rate measurement every 200ms
     // as long as the central is still connected:
     while (central.connected()) {
         float ax = 0, ay, az;
-        Serial.println("Still connected");
+
+        Serial.println("Arduino Peripheral address is [" + BLE.address() + "]");
+        Serial.println("Smartphone Central address is [" + central.address() + "]");
+        
         if (IMU.accelerationAvailable()) {               
           IMU.readAcceleration(ax, ay, az);          
         }
