@@ -1,9 +1,9 @@
 #include <ArduinoBLE.h>
 #include <Arduino_LSM6DS3.h>
 
-BLEService heartRateService("180D"); // BLE Heart Rate Service
+BLEService heartRateService("8da11f6d-0a78-4c3a-8a83-941f7c1d064b"); // BLE Heart Rate Service
 // BLE Heart Rate Measurement Characteristic
-BLEIntCharacteristic heartRateChar("2A37",  // standard 16-bit characteristic UUID
+BLEIntCharacteristic heartRateChar("3b0ef782-9b04-4fef-a3e8-c44f10f0f661",  // standard 16-bit characteristic UUID
     BLERead | BLENotify);  // remote clients will be able to get notifications if this characteristic changes
 
 int oldHeartRate = 0;  // last heart rate reading from analog input
