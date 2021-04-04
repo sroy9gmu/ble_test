@@ -67,7 +67,7 @@ void loop() {
         if (IMU.accelerationAvailable()) {               
           IMU.readAcceleration(ax, ay, az);          
         }
-        updateHeartRate(ax * 1000);
+        updateHeartRate((int)(ax * 30000));
         delay(1000);         
     }
   }
@@ -87,12 +87,10 @@ void blePeripheralDisconnectHandler(BLEDevice central) {
   digitalWrite(LED_BUILTIN, LOW);     // indicate that we no longer have a connection
 }
 
-void updateHeartRate(float axnew) {
+void updateHeartRate(int heartRate) {
   /* Read the current voltage level on the A0 analog input pin.
      This is used here to simulate the heart rate's measurement.
   */
-  //int heartRateMeasurement = analogRead(A0);
-  int heartRate = (int)axnew;//map(heartRateMeasurement, 0, 1023, 0, 100);
   Serial.print("Heart Rate is now: "); // print it
   Serial.println(heartRate);
   if (heartRate != oldHeartRate) {      // if the heart rate has changed    
