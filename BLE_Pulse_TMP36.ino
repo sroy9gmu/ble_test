@@ -13,6 +13,9 @@ BLEService heartRateService("8da11f6d-0a78-4c3a-8a83-941f7c1d064b"); // BLE Hear
 // BLE Heart Rate Measurement Characteristic
 BLEIntCharacteristic heartRateChar("3b0ef782-9b04-4fef-a3e8-c44f10f0f661",  // standard 16-bit characteristic UUID
     BLERead | BLENotify);  // remote clients will be able to get notifications if this characteristic changes
+// BLE Heart Rate Measurement Characteristic
+BLEIntCharacteristic bodyTempChar("6fcf1abb-a08e-4dae-a0ad-8b6d65ba27cb",  // standard 16-bit characteristic UUID
+    BLERead | BLENotify);  // remote clients will be able to get notifications if this characteristic changes    
 
 TaskHandle_t Handle_aTask;
 TaskHandle_t Handle_bTask;
@@ -24,10 +27,9 @@ int pulseLED = 16;
 int tempPin = A0;
 int tempLED = LED_BUILTIN;
 int oldSignal = 0;  // last heart rate reading from analog input
+int oldtemperatureF = 0;
 
-int startMillis, count, Signal;
-
-float temperatureF;
+int startMillis, count, Signal, temperatureF;
 
 void setup() { 
   pinMode(bleLED,OUTPUT);
@@ -52,6 +54,7 @@ void setup() {
   BLE.setLocalName("HeartRateSketch");
   BLE.setAdvertisedService(heartRateService); 
   heartRateService.addCharacteristic(heartRateChar); // add the Heart Rate Measurement characteristic
+  heartRateService.addCharacteristic(bodyTempChar); // add the Heart Rate Measurement characteristic
   BLE.addService(heartRateService);   // Add the BLE Heart Rate service
 
   // advertise to the world so we can be found
@@ -195,28 +198,42 @@ static void threadB( void *pvParameters )
 
 void read_temperature() {  
   //getting the voltage reading from the temperature sensor
- int reading = analogRead(tempPin);  
+  int reading = analogRead(tempPin);  
  
- // converting that reading to voltage, for 3.3v arduino use 3.3
- float voltage = reading * 3.3;
- voltage /= 1024.0; 
+  // converting that reading to voltage, for 3.3v arduino use 3.3
+  float voltage = reading * 3.3;
+  voltage /= 1024.0; 
  
- // print out the voltage
- //Serial.print(voltage); Serial.println(" volts");
+  // print out the voltage
+  //Serial.print(voltage); Serial.println(" volts");
  
- // now print out the temperature
- float temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree wit 500 mV offset
+  // now print out the temperature
+  float temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree wit 500 mV offset
                                                //to degrees ((voltage - 500mV) times 100)
- //Serial.print(temperatureC); Serial.println(" degrees C");
+  //Serial.print(temperatureC); Serial.println(" degrees C");
  
- // now convert to Fahrenheit
- temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
- //Serial.print(temperatureF); Serial.println(" degrees F");
+  // now convert to Fahrenheit
+  temperatureF = int((temperatureC * 9.0 / 5.0) + 32.0);
+  Serial.print(temperatureF); Serial.println(" degrees F");
 
- digitalWrite(tempLED, HIGH);
- myDelayMs(500);   
- digitalWrite(tempLED, LOW); 
- myDelayMs(500);                    
+  digitalWrite(tempLED, HIGH);
+  myDelayMs(500);   
+  digitalWrite(tempLED, LOW); 
+  myDelayMs(500);
+
+  // listen for BLE peripherals to connect:
+  BLEDevice central = BLE.central();
+    
+  // if a central is connected to peripheral:
+  if (central.connected()) {   
+    Serial.print("Body temperature is now: "); // print it
+    Serial.println(temperatureF);
+    if (oldtemperatureF != temperatureF) {      // if the heart rate has changed    
+      bodyTempChar.writeValue(temperatureF);
+      oldtemperatureF = temperatureF;           // save the level for next comparison
+      Serial.println("Body temperature updated ");
+    }
+  }                     
 }
 
 void read_pulse() {
@@ -225,7 +242,7 @@ void read_pulse() {
   if(millis() < startMillis + 10000) {  
   Signal = analogRead(pulsePin);  // Read the PulseSensor's value.
                                   // Assign this value to the "Signal" variable.
-  //Serial.println(Signal);       // Send the Signal value to Serial Plotter.
+  Serial.println(Signal);       // Send the Signal value to Serial Plotter.
 
   if(Signal > Threshold){        
      count++;
@@ -247,12 +264,12 @@ void read_pulse() {
     
   // if a central is connected to peripheral:
   if (central.connected()) {   
-    Serial.print("Heart Rate is now: "); // print it
+    Serial.print("Heart rate is now: "); // print it
     Serial.println(Signal);
     if (oldSignal != Signal) {      // if the heart rate has changed    
       heartRateChar.writeValue(Signal);
       oldSignal = Signal;           // save the level for next comparison
-      Serial.println("Heart Rate updated ");
+      Serial.println("Heart rate updated ");
     }
   }
 }
