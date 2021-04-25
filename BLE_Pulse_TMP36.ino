@@ -1,19 +1,24 @@
 /**************************************************************************
  Date: 04/03/2021
  This is an example for Serial console reading from TMP36 and Pulse sensors.
- Pulse SIG pin connects to Arduino Nano 33 IoT pin D3.
- TMP36 SIG pin connects to Arduino Nano 33 IoT pin D2. 
+ Pulse SIG pin connects to Arduino Nano 33 IoT pin A1.
+ TMP36 SIG pin connects to Arduino Nano 33 IoT pin A0. 
  **************************************************************************/
 #include <SPI.h>
 #include <Wire.h>
 #include <FreeRTOS_SAMD21.h>
 #include <ArduinoBLE.h>
+/* Alternate implemention of temperature sensor reading
+    #include <TMP36.h> 
+  
+    TMP36 myTMP36(A0, 3.3); //Create an instance of the TMP36 class
+ */ 
 
 BLEService heartRateService("8da11f6d-0a78-4c3a-8a83-941f7c1d064b"); // BLE Heart Rate Service
 // BLE Heart Rate Measurement Characteristic
 BLEIntCharacteristic heartRateChar("3b0ef782-9b04-4fef-a3e8-c44f10f0f661",  // standard 16-bit characteristic UUID
     BLERead | BLENotify);  // remote clients will be able to get notifications if this characteristic changes
-// BLE Heart Rate Measurement Characteristic
+// BLE Body Temperature Measurement Characteristic
 BLEIntCharacteristic bodyTempChar("6fcf1abb-a08e-4dae-a0ad-8b6d65ba27cb",  // standard 16-bit characteristic UUID
     BLERead | BLENotify);  // remote clients will be able to get notifications if this characteristic changes    
 
@@ -54,7 +59,7 @@ void setup() {
   BLE.setLocalName("HeartRateSketch");
   BLE.setAdvertisedService(heartRateService); 
   heartRateService.addCharacteristic(heartRateChar); // add the Heart Rate Measurement characteristic
-  heartRateService.addCharacteristic(bodyTempChar); // add the Heart Rate Measurement characteristic
+  heartRateService.addCharacteristic(bodyTempChar); // add the Body Temperature Measurement characteristic
   BLE.addService(heartRateService);   // Add the BLE Heart Rate service
 
   // advertise to the world so we can be found
@@ -197,25 +202,26 @@ static void threadB( void *pvParameters )
 }
 
 void read_temperature() {  
-  //getting the voltage reading from the temperature sensor
+  // NOTE: There exists scope for utilizing more stable and accurate sensors
+  // getting the voltage reading from the temperature sensor
   int reading = analogRead(tempPin);  
  
   // converting that reading to voltage, for 3.3v arduino use 3.3
   float voltage = reading * 3.3;
   voltage /= 1024.0; 
  
-  // print out the voltage
-  //Serial.print(voltage); Serial.println(" volts");
- 
   // now print out the temperature
   float temperatureC = (voltage - 0.5) * 100 ;  //converting from 10 mv per degree wit 500 mV offset
                                                //to degrees ((voltage - 500mV) times 100)
-  //Serial.print(temperatureC); Serial.println(" degrees C");
  
   // now convert to Fahrenheit
   temperatureF = int((temperatureC * 9.0 / 5.0) + 32.0);
   Serial.print(temperatureF); Serial.println(" degrees F");
 
+  /* Alternate implemention of temperature sensor reading  
+     temperatureF = myTMP36.getTempF();
+   */
+  
   digitalWrite(tempLED, HIGH);
   myDelayMs(500);   
   digitalWrite(tempLED, LOW); 
@@ -246,9 +252,9 @@ void read_pulse() {
 
   if(Signal > Threshold){        
      count++;
-     digitalWrite (pulseLED,HIGH);// If the signal is above "550", then "turn-on" Arduino's on-Board LED.
+     digitalWrite (pulseLED,HIGH);// If the signal is above "Threshold", then "turn-on" Arduino's on-Board LED.
      myDelayMs(500);
-     digitalWrite (pulseLED,LOW);//  Else, the sigal must be below "550", so "turn-off" this LED.
+     digitalWrite (pulseLED,LOW);//  Else, the sigal must be below "Threshold", so "turn-off" this LED.
      myDelayMs(500);
     }   
   }
