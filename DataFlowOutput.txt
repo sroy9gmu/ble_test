@@ -1,0 +1,16 @@
+19:53:54.207 -> BPM  60
+
+19:53:58.798 -> Body temperature is now: 63
+19:53:58.798 -> Body temperature updated 
+
+19:54:01.054 -> Heart rate is now: 508
+19:54:01.054 -> Heart rate updated 
+
+19:54:00.753 29093-29112/com.example.ble_test I/MainActivity$gattCallback: Debug: Temperature value 1: 63
+19:54:01.877 29093-29112/com.example.ble_test I/MainActivity$gattCallback: Debug: Pulse signal value 1: 508
+
+19:54:02.313 29093-29093/com.example.ble_test I/MainActivity$gattCallback$1$onCharacteristicRead: Debug: Temperature DocumentSnapshot added with ID: 7LoQ6bODaz70zewXq61y
+19:54:02.455 29093-29093/com.example.ble_test I/MainActivity$gattCallback$1$onCharacteristicRead: Debug: Pulse DocumentSnapshot added with ID: 6RwzU86kuvoNmWqtQYxe
+
+19:54:07.565 29093-29093/com.example.ble_test D/MainActivity$gattCallback$1$onCharacteristicRead: Debug: Pulse 6RwzU86kuvoNmWqtQYxe => {pulse signal=508, sample index=1}
+19:54:07.572 29093-29093/com.example.ble_test D/MainActivity$gattCallback$1$onCharacteristicRead: Debug: Temperature 7LoQ6bODaz70zewXq61y => {sample index=1, body temperature=63}

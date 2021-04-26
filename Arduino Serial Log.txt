@@ -1,0 +1,37 @@
+19:53:08.958 -> Thread Pulse: Starting
+19:53:09.034 -> Thread Temperature: Starting
+19:53:09.034 -> Task Monitor: Started
+
+19:53:54.207 -> BPM  60
+
+19:53:58.798 -> Body temperature is now: 63
+19:53:58.798 -> Body temperature updated 
+
+19:54:01.054 -> Heart rate is now: 508
+19:54:01.054 -> Heart rate updated 
+
+19:54:02.030 -> Body temperature is now: 70
+19:54:02.030 -> Body temperature updated 
+
+19:54:03.020 -> Heart rate is now: 517
+19:54:03.020 -> Heart rate updated 
+
+19:54:03.020 -> Body temperature is now: 63
+19:54:03.020 -> Body temperature updated 
+
+19:54:04.187 -> Heart rate is now: 500
+19:54:04.187 -> Heart rate updated 
+
+19:54:05.172 -> BPM  60
+
+19:54:05.172 -> Body temperature is now: 64
+19:54:05.172 -> Body temperature updated 
+
+19:54:06.206 -> Heart rate is now: 546
+19:54:06.206 -> Heart rate updated 
+
+19:54:06.206 -> Body temperature is now: 66
+19:54:06.206 -> Body temperature updated
+
+19:54:04.187 -> Heart rate is now: 500
+19:54:04.187 -> Heart rate updated 
