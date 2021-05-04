@@ -1,0 +1,2 @@
+FinalProject_env/bin/python3 FirebaseParser.py
+export GOOGLE_APPLICATION_CREDENTIALS="/home/<user>/Downloads/ECE508/heartrateview-18fd4c680042.json"
